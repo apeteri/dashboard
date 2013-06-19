@@ -10,19 +10,18 @@ import nl.topicus.onderwijs.dashboard.modules.DashboardRepository;
 import nl.topicus.onderwijs.dashboard.web.WicketApplication;
 import nl.topicus.onderwijs.dashboard.web.components.JsonResourceBehavior;
 
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.request.resource.JavaScriptResourceReference;
-import org.odlabs.wiquery.core.IWiQueryPlugin;
 import org.odlabs.wiquery.core.javascript.JsQuery;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.core.options.Options;
-import org.odlabs.wiquery.ui.commons.WiQueryUIPlugin;
 import org.odlabs.wiquery.ui.widget.WidgetJavaScriptResourceReference;
 
-@WiQueryUIPlugin
-public class TwitterPanel extends Panel implements IWiQueryPlugin {
+public class TwitterPanel extends Panel {
 	private static final long serialVersionUID = 1L;
 	private JsonResourceBehavior<List<TwitterStatus>> timelineDataResource;
 	private JsonResourceBehavior<List<TwitterStatus>> mentionsDataResource;
@@ -61,14 +60,15 @@ public class TwitterPanel extends Panel implements IWiQueryPlugin {
 
 	@Override
 	public void renderHead(IHeaderResponse response) {
-		response.renderJavaScriptReference(WidgetJavaScriptResourceReference
-				.get());
-		response.renderJavaScriptReference(new JavaScriptResourceReference(
-				TwitterPanel.class, "jquery.ui.dashboardtwitter.js"));
+		response.render(JavaScriptHeaderItem
+				.forReference(WidgetJavaScriptResourceReference.get()));
+		response.render(JavaScriptHeaderItem
+				.forReference(new JavaScriptResourceReference(
+						TwitterPanel.class, "jquery.ui.dashboardtwitter.js")));
+		response.render(OnDomReadyHeaderItem.forScript(statement().render()));
 	}
 
-	@Override
-	public JsStatement statement() {
+	private JsStatement statement() {
 		Options options = new Options();
 		options.putLiteral("timelineUrl", timelineDataResource.getCallbackUrl()
 				.toString());

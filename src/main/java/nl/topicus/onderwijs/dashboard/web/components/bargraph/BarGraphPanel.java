@@ -8,7 +8,9 @@ import nl.topicus.onderwijs.dashboard.keys.Project;
 import nl.topicus.onderwijs.dashboard.modules.DataSource;
 import nl.topicus.onderwijs.dashboard.web.WicketApplication;
 
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -17,15 +19,12 @@ import org.apache.wicket.request.resource.JavaScriptResourceReference;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.odlabs.wiquery.core.IWiQueryPlugin;
 import org.odlabs.wiquery.core.javascript.JsQuery;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.core.options.Options;
-import org.odlabs.wiquery.ui.commons.WiQueryUIPlugin;
 import org.odlabs.wiquery.ui.widget.WidgetJavaScriptResourceReference;
 
-@WiQueryUIPlugin
-public class BarGraphPanel extends Panel implements IWiQueryPlugin {
+public class BarGraphPanel extends Panel {
 	private static final long serialVersionUID = 1L;
 	private IModel<List<Class<? extends DataSource<? extends Number>>>> dataSources;
 
@@ -49,14 +48,16 @@ public class BarGraphPanel extends Panel implements IWiQueryPlugin {
 
 	@Override
 	public void renderHead(IHeaderResponse response) {
-		response.renderJavaScriptReference(WidgetJavaScriptResourceReference
-				.get());
-		response.renderJavaScriptReference(new JavaScriptResourceReference(
-				BarGraphBarPanel.class, "jquery.ui.dashboardbargraphmaster.js"));
+		response.render(JavaScriptHeaderItem
+				.forReference(WidgetJavaScriptResourceReference.get()));
+		response.render(JavaScriptHeaderItem
+				.forReference(new JavaScriptResourceReference(
+						BarGraphBarPanel.class,
+						"jquery.ui.dashboardbargraphmaster.js")));
+		response.render(OnDomReadyHeaderItem.forScript(statement().render()));
 	}
 
-	@Override
-	public JsStatement statement() {
+	private JsStatement statement() {
 		ObjectMapper mapper = new ObjectMapper();
 		List<BarDataSet> dataSets = new ArrayList<BarDataSet>();
 
